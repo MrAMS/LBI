@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<meta charset="utf-8">
+		<title>Local Bangumi Index(LBI)</title>
+		<link rel="stylesheet" href="./node_modules/mdui/dist/css/mdui.min.css">
+        <link rel="stylesheet" href="./app.css">
+		<script src="./node_modules/jquery/dist/jquery.min.js"></script>
+        <script>if (typeof module === 'object') {window.jQuery = window.$ = module.exports;};</script>
+		<script src="./node_modules/mdui/dist/js/mdui.min.js"></script>
+        <script src="./node_modules/jsrender/jsrender.min.js"></script>
+	</head>
+    <style>
+        .c-m-card{
+            margin: 2rem;
+            padding: 2rem;
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+        }
+    </style>
+    <script id="tmpl" type="text/x-jsrender">
+        <li class="mdui-list-item">
+            <i class="mdui-list-item-avatar mdui-icon material-icons">folder</i>
+            <div class="mdui-list-item-content">
+                <div class="mdui-list-item-title">{{:#data}}</div>
+            </div>
+        </li>
+    </script>
+	<body class="mdui-theme-layout-auto mdui-theme-primary-yellow mdui-appbar-with-toolbar">
+        <div class="mdui-container-fluid">
+            <div class="mdui-appbar mdui-appbar-fixed">
+                <div class="mdui-toolbar mdui-color-theme">
+                    <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">build</i></a>
+                    <a href="javascript:;" class="mdui-typo-title">启动向导</a>
+                </div>
+            </div>
+            <div>
+                <div class="mdui-center" style="text-align: center;">
+                    <div class="mdui-typo-display-1-opacity mdui-m-t-3 mdui-m-b-1">欢迎使用</div>
+                    <div class="mdui-typo-display-1 mdui-m-t-3 mdui-m-b-1"> Local Bangumi Index </div>
+                    <div class="mdui-typo-headline-opacity">本地动画管理</div>
+                    <div class="mdui-typo-caption-opacity mdui-m-b-3 mdui-m-t-1">如艺术品般管理您的动画</div>
+                </div>
+                <div class="mdui-center c-m-card">
+                    <div class="mdui-typo-headline mdui-m-b-1">设置资料库</div>
+                    <div class="mdui-typo-caption-opacity mdui-m-b-2">
+                        选择动画所在文件夹来创建资料库，可添加多个
+                    </div>
+                    <div class="mdui-typo-caption mdui-m-b-2">支持的文件夹结构（每部动画所在文件夹名为其<b>中文名称</b>以方便匹配数据，视频文件名称无强制要求）</div>
+                    <div class="mdui-typo">
+                        <pre>+-- 番（资料库文件夹）
+| +-- 终将成为你
+| | `-- Yagate Kimi ni Naru [01][Ma10p_1080p][x265_flac_aac].mkv
+| | `-- Yagate Kimi ni Naru [01][Ma10p_1080p][x265_flac_aac].sc.ass
+| +-- 来自风平浪静的明天
+| | `-- 来自风平浪静的明天：第1话 在大海与陆地之间.mp4
+| | `-- 来自风平浪静的明天：第2话 冰冷的薄膜.mp4</pre>
+                      </div>
+                    <ul class="mdui-list" id="folder-list">
+                        
+                    </ul>
+                    <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme" id="select-directory">添加文件夹</button>
+                    <button class="mdui-btn mdui-btn-raised mdui-ripple" id="clear-directory">清空</button>
+                </div>
+                <div class="mdui-center c-m-card">
+                    <div class="mdui-typo-headline mdui-m-b-2">数据源</div>
+                    <div class="mdui-typo-caption-opacity mdui-m-b-1">
+                        建议使用默认的配置，如果稍后出现问题在此更改
+                    </div>
+                    <select class="mdui-select" id="select">
+                        <option value="https://api.bgm.tv" selected>https://api.bgm.tv</option>
+                        <option value="http://api.bgm.tv">http://api.bgm.tv</option>
+                        <option value="https://mirror.api.bgm.rin.cat/">https://mirror.api.bgm.rin.cat</option>
+                        <option value="http://mirror.api.bgm.rin.cat">http://mirror.api.bgm.rin.cat</option>
+                    </select>
+                </div>
+                <button class="mdui-btn mdui-center mdui-m-b-4 mdui-btn-raised mdui-ripple mdui-color-theme" id="go">开始匹配</button>
+            </div>
+        </div>
+	</body>
+    <script>
+        var bgms = [], folders = [];
+        const ipcRenderer = require('electron').ipcRenderer;
+        const m_data = require('./m_data');
+        
+        $('#select-directory').click(function(){
+            ipcRenderer.send('open-file-dialog');
+        });
+        $('#clear-directory').click(function(){
+            bgms = [];
+            folders = [];
+            load_folders();
+        });
+        $('#go').click(function(){
+            if(bgms.length == 0){
+                mdui.snackbar({
+                    message: '请添加资料库'
+                });
+                return;
+            }
+            
+            ipcRenderer.send('guide-settings', folders, $('#select').val());
+            ipcRenderer.send('start-scapper', bgms, 'guide');
+        });
+        ipcRenderer.on('scan-folder', (event, path, result) => {
+            folders.push(path);
+            bgms = bgms.concat(result);
+            load_folders();
+        })
+        function load_folders(){
+            var tmpl = $.templates("#tmpl");
+            $('#folder-list').html(tmpl.render(folders));
+        }
+    </script>
+</html>

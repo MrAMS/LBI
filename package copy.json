@@ -1,0 +1,24 @@
+{
+  "name": "lbi",
+  "version": "0.9.0",
+  "description": "Local Bangumi Index 一个本地动画管理软件",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "Santiego",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^11.2.3",
+    "electron-builder": "^22.9.1"
+  },
+  "dependencies": {
+    "jquery": "^3.5.1",
+    "jsrender": "^1.0.11",
+    "lowdb": "^1.0.0",
+    "mdui": "^1.0.1",
+    "moment": "^2.29.1",
+    "request": "^2.88.2"
+  }
+}

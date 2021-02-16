@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<meta charset="utf-8">
+		<title>Local Bangumi Index(LBI)</title>
+		<link rel="stylesheet" href="./node_modules/mdui/dist/css/mdui.min.css">
+        <link rel="stylesheet" href="./app.css">
+		<script src="./node_modules/jquery/dist/jquery.min.js"></script>
+        <script>if (typeof module === 'object') {window.jQuery = window.$ = module.exports;};</script>
+		<script src="./node_modules/mdui/dist/js/mdui.min.js"></script>
+        <script src="./node_modules/jsrender/jsrender.min.js"></script>
+	</head>
+    <style>
+        img{
+            width: 10rem;
+            height: 14rem;
+            background-size: cover;
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+            border-radius: 0.2rem;
+        }
+        input{
+            border: none;
+            width: 5rem;
+        }
+    </style>
+    <script id="tmpl" type="text/x-jsrender">
+            <div class="mdui-panel-item-header">
+              <div class="mdui-panel-item-title">{{:name}}</div>
+              <div class="mdui-panel-item-summary">
+                {{if bgm}}
+                    {{:((bgm.info.name_cn!="")?bgm.info.name_cn:bgm.info.name)}}
+                {{else info}}
+                    Failed
+                {{else}}
+                    Loading
+                {{/if}}
+              </div>
+              <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+            </div>
+            <div class="mdui-panel-item-body">
+              <div style="display: flex;flex-direction: row;">
+                  {{if bgm}}
+                  <img src="{{:~get_img_folder_path()+bgm.info.img}}">
+                  {{/if}}
+                  <div style="flex-grow: 1;text-align: left; margin-left: 2rem;">
+                      {{if bgm}}
+                      <div><span class="mdui-typo-caption-opacity">文件夹原名：</span><span class="mdui-typo-caption">{{:name}}</span></div>
+                      <div><span class="mdui-typo-caption-opacity">匹配到：</span><span class="mdui-typo-caption">{{:((bgm.info.name_cn!="")?bgm.info.name_cn:bgm.info.name)}}</span></div>
+                      <div><span class="mdui-typo-caption-opacity">Subject id：</span><span class="mdui-typo-caption">{{:bgm.info.id}}</span></div>
+                      <div class=" mdui-m-t-2"><span class="mdui-typo-caption-opacity">话数：</span><span class="mdui-typo-caption">{{:bgm.info.eps_count}}</span></div>
+                      <div><span class="mdui-typo-caption-opacity">放送开始：</span><span class="mdui-typo-caption">{{:bgm.air_date}}</span></div>
+                      <div>
+                          <span class="mdui-typo-caption-opacity">演出：</span>
+                          <span class="mdui-typo-caption c-bgm-text">
+                            {{for bgm.info.actors}}{{:#data}}, {{/for}}
+                          </span>
+                      </div>
+                      <div>
+                          <span class="mdui-typo-caption-opacity">Staff：</span>
+                          <span class="mdui-typo-caption c-bgm-text">
+                            {{for bgm.info.staff}}{{:#data}},{{/for}}
+                          </span>
+                      </div>
+                      {{else info}}
+                      <div class="mdui-typo">
+                        <pre>{{:info}}</pre>
+                      </div>
+                      {{/if}}
+                      <div class="mdui-m-t-3">
+                          <div class="mdui-typo-caption">手动匹配 Subject id</div>
+                          <div class="mdui-textfield">
+                              <input type="text" class="mdui-textfield-input" placeholder="subject id" id="input-{{:ind}}"/>
+                              <div class="mdui-textfield-helper">输入动画<i>subject id</i>（如https://bangumi.tv/subject/115908 中的115908即为所求）</div>
+                            </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="mdui-panel-item-actions">
+                  <button class="mdui-btn mdui-ripple" id="btn-{{:ind}}" onclick="ui_reinstall_bgm({{:ind}});">更新</button>
+                <button class="mdui-btn mdui-ripple" mdui-panel-item-close>取消</button>
+              </div>
+            </div>
+    </script>
+	<body class="mdui-theme-layout-auto mdui-theme-primary-yellow mdui-appbar-with-toolbar">
+        <div class="mdui-container-fluid">
+            <div class="mdui-appbar mdui-appbar-fixed">
+                <div class="mdui-toolbar mdui-color-theme">
+                    <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">build</i></a>
+                    <a href="javascript:;" class="mdui-typo-title">Scapper</a>
+                </div>
+            </div>
+            <div class="mdui-valign mdui-m-t-2">
+                <div class="mdui-center" style="text-align: center;width: 80%;">
+					<div class="mdui-spinner mdui-spinner-colorful"></div>
+                    <div class="mdui-typo-display-1-opacity mdui-m-t-3 mdui-m-b-1">正在匹配动画信息</div>
+					<div class="mdui-typo-caption-opacity mdui-m-b-3"><span id="cnt_done">1</span>/<span id="cnt_all">65</span></div>
+					<div class="mdui-progress">
+  						<div class="mdui-progress-determinate" style="width: 30%;" id="progress"></div>
+					</div>
+					<div class="mdui-m-t-3">
+						<div class="mdui-panel" mdui-panel id="panel">
+                        </div>
+					</div>
+                    <button class="mdui-btn mdui-center mdui-m-t-2 mdui-btn-raised mdui-ripple" id="go">下一步</button>
+                    <button class="mdui-btn mdui-center mdui-m-t-2 mdui-btn-raised mdui-ripple" id="cancel">取消</button>
+                </div>
+                
+            </div>
+        </div>
+	</body>
+    <script src="./scapper.js"></script>
+</html>
