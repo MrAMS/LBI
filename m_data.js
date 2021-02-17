@@ -80,7 +80,7 @@ module.exports.update_bgm_status = function(name, ep_id){
         ep_id: ep_id
     }).write();
     // 与bgm同步
-    var access_token = this.get_user_access_token();
+    /*var access_token = this.get_user_access_token();
     if(access_token != undefined){
         var bgm = this.get_bangumi(name);
         m_api.updata_collection(access_token.access_token, bgm.info.id, (success) => {
@@ -91,7 +91,7 @@ module.exports.update_bgm_status = function(name, ep_id){
             else
                 ipcRenderer.send('app-log', "同步进度失败，请重新登录");
         })
-    }
+    }*/
 }
 
 /**

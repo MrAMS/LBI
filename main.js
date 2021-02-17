@@ -143,6 +143,6 @@ function load_login(){
 
 function run(){
   m_exts.check_data_path(__dirname);
-  load_login();
+  //load_login();
   createWindow();
 }
